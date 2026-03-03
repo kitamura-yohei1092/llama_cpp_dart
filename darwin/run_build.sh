@@ -31,8 +31,9 @@ build_for_platform() {
           -DLLAMA_CURL=OFF \
           -DLLAMA_BUILD_TESTS=OFF \
           -DLLAMA_BUILD_EXAMPLES=OFF \
-          -DLLAMA_BUILD_SERVER=ON \
-          -DLLAMA_BUILD_TOOLS=OM \
+          -DLLAMA_BUILD_SERVER=OFF \
+          -DLLAMA_BUILD_TOOLS=ON \
+          -DLLAMA_BUILD_COMMON=ON \
           -DCMAKE_PROJECT_INCLUDE="${script_dir}/no_bundle.cmake" \
           -DCMAKE_BUILD_TYPE=Release \
           -G Xcode \
@@ -49,8 +50,8 @@ build_for_platform() {
           -DCMAKE_INSTALL_PREFIX="./install" \
           ..
 
-    cmake --build . --config Release --parallel
-    cmake --install . --config Release
+    cmake --build . --config Release --parallel --target llama ggml ggml-base ggml-metal ggml-cpu ggml-blas mtmd
+    cmake --install . --config Release || echo "⚠️  Install had errors (expected: tool binaries not built), continuing..."
 
     # Copy libraries WITHOUT post-processing that strips iOS info
     mkdir -p "${output_dir}"
@@ -63,6 +64,15 @@ build_for_platform() {
         "install/lib/libggml-blas.${lib_extension}"
         "install/lib/libmtmd.${lib_extension}"
     )
+
+    # Fallback: copy any missing libraries from build output
+    mkdir -p "install/lib"
+    for lib_name in libllama libggml libggml-base libggml-metal libggml-cpu libggml-blas libmtmd; do
+        if [ ! -f "install/lib/${lib_name}.${lib_extension}" ] && [ -f "bin/Release/${lib_name}.${lib_extension}" ]; then
+            echo "⚠️  ${lib_name} not in install dir, copying from build output..."
+            cp "bin/Release/${lib_name}.${lib_extension}" "install/lib/"
+        fi
+    done
 
     for lib in "${libs[@]}"; do
         if [ -f "$lib" ]; then

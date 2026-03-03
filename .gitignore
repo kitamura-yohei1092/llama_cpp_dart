@@ -34,7 +34,8 @@ doc/api/
 **.idea
 .cache
 
-dist
+# dist — xcframework is tracked for this fork
+# dist
 
 neo
 
