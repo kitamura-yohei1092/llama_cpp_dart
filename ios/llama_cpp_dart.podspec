@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
 
   s.source_files = []
 
-  s.vendored_frameworks = '../dist/Llama.xcframework'
+  s.vendored_frameworks = 'Frameworks/Llama.xcframework'
 
   s.dependency 'Flutter'
 end
