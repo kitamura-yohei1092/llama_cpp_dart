@@ -59,7 +59,16 @@ class Llama {
       DynamicLibrary mainLib;
       DynamicLibrary? mtmdLib;
 
-      if (libraryPath != null) {
+      if (Platform.isIOS) {
+        // On iOS, load Llama.framework lazily via DynamicLibrary.open()
+        // instead of linking at startup (which freezes the splash screen
+        // due to Metal shader compilation in libggml-metal).
+        final exePath = Platform.resolvedExecutable;
+        final appDir = exePath.substring(0, exePath.lastIndexOf('/'));
+        final fwPath = '$appDir/Frameworks/Llama.framework/Llama';
+        mainLib = DynamicLibrary.open(fwPath);
+        // Nested dylibs are loaded transitively by Llama
+      } else if (libraryPath != null) {
         mainLib = DynamicLibrary.open(libraryPath!);
 
         // Try to load libmtmd adjacent to libllama
