@@ -1,7 +1,7 @@
 # See https://www.dartlang.org/guides/libraries/private-files
 .vscode/
 *.dylib
-!ios/Frameworks/**/*.dylib
+!ios/Llama.xcframework/**/*.dylib
 !dist/**/*.dylib
 darwin/build.sh
 *.a
