@@ -12,9 +12,13 @@ Pod::Spec.new do |s|
   s.platform     = :ios, '16.4'
   s.swift_version = '5.9'
 
-  s.source_files = []
-
-  s.vendored_frameworks = 'Llama.xcframework'
+  # Empty source — this pod only vendors the Llama xcframework.
+  # We intentionally do NOT use vendored_frameworks because that
+  # links the framework at startup, and the Metal shader compilation
+  # in libggml-metal causes the app to freeze on the splash screen.
+  # Instead, the Podfile copies the framework into the app bundle
+  # and Dart loads it lazily via DynamicLibrary.open().
+  s.source_files = ['DummyPlaceholder.swift']
 
   s.dependency 'Flutter'
 end
